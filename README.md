@@ -8,6 +8,7 @@ A command-line interface tool for interacting with Amazon Q using different prom
 - Get detailed explanations of code files
 - Receive refactoring suggestions for your code
 - Generate test cases for your code
+- Generate documentation for your code
 
 ## Prerequisites
 
@@ -102,6 +103,20 @@ duq test ./my-project/src/utils.js -o ./custom-tests/utils.test.js
 ```
 
 This will generate comprehensive test cases for your code and save them to a test file at the default or specified location.
+
+### Add Docstrings to Code
+
+Automatically add documentation comments to functions and classes:
+
+```bash
+duq docstring ./my-project/src/utils.js
+```
+
+This will:
+1. Analyze the code file
+2. Generate appropriate docstrings for all functions, classes, and methods
+3. Insert the docstrings while preserving the existing code
+4. Create a backup of the original file
 
 ## Examples
 

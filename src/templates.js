@@ -9,6 +9,7 @@ const templates = {
 Create a README.md for this project directory: ${dirPath}
 Include: project name, description, installation, usage, structure, and dependencies.
 Format as markdown.
+Don't ask any follow-up questions.
 Save the README.md file to: ${readmePath}
 `;
   },
@@ -16,10 +17,12 @@ Save the README.md file to: ${readmePath}
   explain: (filePath) => `
 Explain this code file: ${filePath}
 Include what it does, key functions, patterns used, and potential improvements.
+Don't ask any follow-up questions.
 `,
 
   refactor: (filePath) => `
 Suggest refactoring improvements for: ${filePath}
+Don't ask any follow-up questions.
 Focus on code quality, performance, best practices, and potential bugs.
 Provide specific code examples.
 `,
@@ -34,7 +37,67 @@ Provide specific code examples.
 Generate test cases for: ${filePath}
 Include unit tests, edge cases, mocks where needed, and follow best practices.
 Provide complete test code ready to implement.
+Don't ask any follow-up questions.
 Save the test file to: ${testFilePath}
+`;
+  },
+
+  docstrings: (filePath) => {
+    const fileExt = require('path').extname(filePath);
+    let language;
+
+    switch (fileExt.toLowerCase()) {
+      case '.js':
+      case '.jsx':
+      case '.ts':
+      case '.tsx':
+        language = 'JavaScript/TypeScript';
+        break;
+      case '.py':
+        language = 'Python';
+        break;
+      case '.java':
+        language = 'Java';
+        break;
+      case '.rb':
+        language = 'Ruby';
+        break;
+      case '.go':
+        language = 'Go';
+        break;
+      case '.php':
+        language = 'PHP';
+        break;
+      case '.c':
+      case '.cpp':
+      case '.h':
+      case '.hpp':
+        language = 'C/C++';
+        break;
+      case '.cs':
+        language = 'C#';
+        break;
+      case '.swift':
+        language = 'Swift';
+        break;
+      case '.rs':
+        language = 'Rust';
+        break;
+      default:
+        language = 'Unknown';
+    }
+
+    return `
+Add appropriate docstrings/comments to this code file: ${filePath}
+Don't ask any follow-up questions.
+Language: ${language}
+Guidelines:
+1. Use the standard documentation format for the language (JSDoc for JavaScript, docstrings for Python, etc.)
+2. Document parameters, return values, and exceptions/errors
+3. Include a brief description of what each function/class/method does
+4. Don't modify the actual implementation code
+5. Preserve existing documentation if it's already present
+6. Return the complete file with added documentation
 `;
   }
 };
