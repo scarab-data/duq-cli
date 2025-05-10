@@ -1,0 +1,40 @@
+{
+  "name": "duq-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for interacting with Amazon Q using different prompt templates",
+  "main": "src/index.js",
+  "bin": {
+    "duq": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build": "pkg . --out-path=dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "amazon-q",
+    "ai",
+    "code-assistant"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^10.0.0",
+    "fs-extra": "^11.1.1",
+    "glob": "^8.1.0",
+    "ora": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "pkg": {
+    "targets": [
+      "node14-win-x64",
+      "node14-macos-x64",
+      "node14-linux-x64"
+    ],
+    "outputPath": "dist"
+  }
+}
