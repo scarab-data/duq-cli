@@ -1,27 +1,6 @@
-/**
- * File system module for file operations
- * @module fs
- */
 const fs = require('fs');
-
-/**
- * Path module for handling file paths
- * @module path
- */
 const path = require('path');
 
-/**
- * Processes all files in a directory and collects statistics
- * 
- * @param {string} directory - The path to the directory to process
- * @returns {Object} Statistics about the processed files
- * @returns {number} returns.fileCount - Total number of files in the directory
- * @returns {number} returns.totalSize - Combined size of all files in bytes
- * @returns {Object} returns.largestFile - Information about the largest file
- * @returns {string} returns.largestFile.name - Name of the largest file
- * @returns {number} returns.largestFile.size - Size of the largest file in bytes
- * @returns {number} returns.averageSize - Average file size in bytes
- */
 function processFiles(directory) {
   const files = fs.readdirSync(directory);
   
@@ -56,16 +35,6 @@ function processFiles(directory) {
   };
 }
 
-/**
- * Transforms data elements based on their type:
- * - Numbers are multiplied by 2
- * - Strings are converted to uppercase
- * - Arrays are recursively transformed
- * - Other types are ignored
- * 
- * @param {Array} data - The array of mixed data types to transform
- * @returns {Array} A new array with transformed values
- */
 function transformData(data) {
   const result = [];
   
@@ -82,39 +51,19 @@ function transformData(data) {
   return result;
 }
 
-/**
- * Class for processing and transforming data collections
- */
 class DataProcessor {
-  /**
-   * Creates a new DataProcessor instance
-   * 
-   * @param {Array} initialData - Initial data array to process (optional)
-   */
   constructor(initialData) {
     this.data = initialData || [];
     this.processed = false;
     this.timestamp = Date.now();
   }
   
-  /**
-   * Adds a new item to the data collection
-   * 
-   * @param {*} item - The item to add to the collection
-   * @returns {number} The new length of the data collection
-   */
   addItem(item) {
     this.data.push(item);
     this.processed = false;
     return this.data.length;
   }
   
-  /**
-   * Removes an item at the specified index
-   * 
-   * @param {number} index - The index of the item to remove
-   * @returns {boolean} True if item was successfully removed, false otherwise
-   */
   removeItem(index) {
     if (index >= 0 && index < this.data.length) {
       this.data.splice(index, 1);
@@ -124,14 +73,6 @@ class DataProcessor {
     return false;
   }
   
-  /**
-   * Processes the data collection by applying transformations:
-   * - Numbers: multiplied by 3 and add 2
-   * - Strings: reversed
-   * - Other types: unchanged
-   * 
-   * @returns {Array} The processed data array
-   */
   process() {
     this.result = this.data.map(item => {
       if (typeof item === 'number') {
@@ -148,17 +89,6 @@ class DataProcessor {
     return this.result;
   }
   
-  /**
-   * Gets statistics about the current data collection
-   * 
-   * @returns {Object} Statistics about the data collection
-   * @returns {number} returns.total - Total number of items
-   * @returns {number} returns.numbers - Count of number items
-   * @returns {number} returns.strings - Count of string items
-   * @returns {number} returns.other - Count of other type items
-   * @returns {boolean} returns.processed - Whether the data has been processed
-   * @returns {number} returns.timestamp - Timestamp of last processing
-   */
   getStats() {
     const numbers = this.data.filter(item => typeof item === 'number');
     const strings = this.data.filter(item => typeof item === 'string');
@@ -174,14 +104,6 @@ class DataProcessor {
   }
 }
 
-/**
- * Simulates fetching and processing data from a remote API
- * 
- * @param {string} url - The URL to fetch data from
- * @param {Object} options - Options for the fetch request
- * @returns {Promise<Object>} A promise that resolves to the fetched and processed data
- * @throws {Error} If the fetch operation fails (20% chance of failure)
- */
 function fetchAndProcessData(url, options) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -204,12 +126,6 @@ function fetchAndProcessData(url, options) {
   });
 }
 
-/**
- * Main function that demonstrates the usage of all other functions
- * 
- * @async
- * @returns {Promise<void>}
- */
 async function main() {
   try {
     const currentDir = process.cwd();
@@ -233,17 +149,10 @@ async function main() {
   }
 }
 
-/**
- * Check if this file is being run directly (not imported)
- * and execute the main function if it is
- */
 if (require.main === module) {
   main().catch(console.error);
 }
 
-/**
- * Export the public API of this module
- */
 module.exports = {
   processFiles,
   transformData,
