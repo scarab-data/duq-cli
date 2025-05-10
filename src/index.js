@@ -9,7 +9,7 @@
  */
 
 const { program } = require('commander');
-const { document, explain, refactor, test, docstrings } = require('./commands');
+const { document, explain, refactor, test, docstrings, security } = require('./commands');
 const chalk = require('chalk');
 const path = require('path');
 
@@ -95,6 +95,27 @@ program
     .argument('<file>', 'File to add docstrings to')
     .action((file) => {
         docstrings(file);
+    });
+
+program
+    .command('security')
+    .alias('sec')
+    .description('Perform security analysis on a file or directory')
+    .argument('<path>', 'File or directory to analyze')
+    .option('-o, --output <path>', 'Path to save the security report')
+    .action((targetPath, options) => {
+        security(targetPath, options);
+    });
+
+program
+    .command('chain')
+    .description('Run multiple commands in sequence')
+    .argument('<path>', 'File or directory to process')
+    .argument('<steps>', 'Comma-separated list of commands to run (e.g., "refactor,test,docstring")')
+    .option('-o, --output <path>', 'Custom output path for generated files')
+    .option('-c, --continue-on-error', 'Continue execution if a step fails')
+    .action((targetPath, steps, options) => {
+        chain(targetPath, steps, options);
     });
 
 // Parse command line arguments

@@ -119,7 +119,7 @@ function callAmazonQ(prompt) {
   
   console.clear();
   console.log(chalk.cyan('╔═══════════════════════════════════════════════════════════╗'));
-  console.log(chalk.cyan('║                      DUQ CLI ASSISTANT                    ║'));
+  console.log(chalk.cyan('║                      duq CLI ASSISTANT                    ║'));
   console.log(chalk.cyan('╚═══════════════════════════════════════════════════════════╝'));
   
   console.log(chalk[randomColor](duckArt));
@@ -140,7 +140,7 @@ function callAmazonQ(prompt) {
     });
     
     console.clear(); // Clear the console
-    console.log(chalk.green('✓ Response generated successfully!'));
+    console.log(chalk.green('✓ Response generated successfully! Amazon Q Output:'));
     
     // Return the raw output
     return output;

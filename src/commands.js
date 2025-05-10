@@ -3,6 +3,7 @@ const path = require('path');
 const glob = require('glob');
 const chalk = require('chalk');
 const templates = require('./templates');
+const backupManager = require('./backup-manager');
 const { callAmazonQ } = require('./amazon-q');
 
 /**
@@ -150,7 +151,7 @@ const test = async (filePath, outputPath) => {
  * Adds docstrings to a code file
  * @param {string} filePath - Path to the file to document
  */
-async function docstrings(filePath) {
+const docstrings = async (filePath) => {
     try {
         // Check if file exists
         if (!fs.existsSync(filePath)) {
@@ -190,7 +191,163 @@ async function docstrings(filePath) {
     } catch (error) {
         console.error(chalk.red(`Error adding docstrings: ${error.message}`));
     }
-}
+};
+
+/**
+ * Perform security analysis on a file or directory
+ * @param {string} targetPath - Path to the file or directory to analyze
+ * @param {Object} options - Command options
+ */
+const security = async (targetPath, options = {}) => {
+    try {
+        // Ensure we have an absolute path
+        const absolutePath = path.resolve(targetPath);
+
+        // Check if path exists
+        if (!fs.existsSync(absolutePath)) {
+            console.error(chalk.red(`Error: Path not found: ${absolutePath}`));
+            return;
+        }
+
+        const isDirectory = fs.lstatSync(absolutePath).isDirectory();
+
+        console.log(chalk.blue(`Performing security analysis on ${isDirectory ? 'directory' : 'file'}: ${absolutePath}`));
+
+        let prompt = templates.security(absolutePath, isDirectory);
+
+        if (isDirectory) {
+            // For directories, we'll analyze key files
+            const contents = getDirectoryContents(absolutePath);
+            prompt += '\n\nDirectory contents:\n' + JSON.stringify(contents, null, 2);
+        } else {
+            // For a single file
+            const fileContent = readFile(absolutePath);
+            prompt += '\n\nFile content:\n' + fileContent;
+        }
+
+        // Call Amazon Q
+        const response = await callAmazonQ(prompt);
+
+        // Display the response
+        console.log('\n' + response);
+
+        // Save the report if output option is provided
+        if (options.output) {
+            const outputPath = path.resolve(options.output);
+
+            // Extract the markdown content from the response if it's in a code block
+            let reportContent = response;
+            const mdPattern = /```(?:markdown)?\s*([\s\S]*?)```/;
+            const mdMatch = response.match(mdPattern);
+            if (mdMatch && mdMatch[1]) {
+                reportContent = mdMatch[1].trim();
+            }
+
+            fs.writeFileSync(outputPath, reportContent, 'utf8');
+            console.log(chalk.green(`✓ Security report saved to: ${outputPath}`));
+        }
+    } catch (error) {
+        console.error(chalk.red(`Error performing security analysis: ${error.message}`));
+    }
+};
+
+/**
+ * Chain multiple commands together
+ * @param {string} targetPath - Path to the file or directory
+ * @param {string} steps - Comma-separated list of commands to run
+ * @param {Object} options - Command options
+ */
+const chain = async (targetPath, steps, options = {}) => {
+    try {
+        // Ensure we have an absolute path
+        const absolutePath = path.resolve(targetPath);
+
+        // Check if path exists
+        if (!fs.existsSync(absolutePath)) {
+            console.error(chalk.red(`Error: Path not found: ${absolutePath}`));
+            return;
+        }
+
+        // Parse the steps
+        const commandSequence = steps.split(',').map(step => step.trim());
+
+        console.log(chalk.blue(`Chaining commands on ${absolutePath}:`));
+        console.log(chalk.cyan(`Sequence: ${commandSequence.join(' → ')}`));
+
+        // Track if the target is a file or directory
+        const isDirectory = fs.lstatSync(absolutePath).isDirectory();
+
+        // Execute each command in sequence
+        for (let i = 0; i < commandSequence.length; i++) {
+            const command = commandSequence[i];
+            console.log(chalk.yellow(`\n[${i + 1}/${commandSequence.length}] Running command: ${command}`));
+
+            // Check if the command is valid
+            if (!['document', 'explain', 'refactor', 'test', 'docstrings', 'security'].includes(command)) {
+                console.error(chalk.red(`Error: Unknown command '${command}'`));
+                if (options.continueOnError) {
+                    console.log(chalk.yellow(`Skipping unknown command and continuing...`));
+                    continue;
+                } else {
+                    console.error(chalk.red(`Chain execution stopped. Use --continue-on-error to ignore failed steps.`));
+                    return;
+                }
+            }
+
+            // Check if the command is compatible with the target type
+            if (isDirectory && !['document', 'security'].includes(command)) {
+                console.error(chalk.red(`Error: Command '${command}' cannot be used on directories`));
+                if (options.continueOnError) {
+                    console.log(chalk.yellow(`Skipping incompatible command and continuing...`));
+                    continue;
+                } else {
+                    console.error(chalk.red(`Chain execution stopped. Use --continue-on-error to ignore failed steps.`));
+                    return;
+                }
+            }
+
+            // Execute the command
+            try {
+                switch (command) {
+                    case 'document':
+                        if (isDirectory) {
+                            await document(absolutePath, options.output);
+                        } else {
+                            console.error(chalk.red(`Error: 'document' command requires a directory`));
+                            if (!options.continueOnError) return;
+                        }
+                        break;
+                    case 'explain':
+                        await explain(absolutePath);
+                        break;
+                    case 'refactor':
+                        await refactor(absolutePath);
+                        break;
+                    case 'test':
+                        await test(absolutePath, options.output);
+                        break;
+                    case 'docstrings':
+                        await docstrings(absolutePath);
+                        break;
+                    case 'security':
+                        await security(absolutePath, { output: options.output });
+                        break;
+                }
+                console.log(chalk.green(`✓ Command '${command}' completed successfully`));
+            } catch (error) {
+                console.error(chalk.red(`Error executing command '${command}': ${error.message}`));
+                if (!options.continueOnError) {
+                    console.error(chalk.red(`Chain execution stopped. Use --continue-on-error to ignore failed steps.`));
+                    return;
+                }
+            }
+        }
+
+        console.log(chalk.green(`\n✓ Chain execution completed`));
+    } catch (error) {
+        console.error(chalk.red(`Error in chain execution: ${error.message}`));
+    }
+};
 
 module.exports = {
     document,
@@ -198,4 +355,6 @@ module.exports = {
     refactor,
     test,
     docstrings,
+    security,
+    chain
 };

@@ -99,6 +99,33 @@ Guidelines:
 5. Preserve existing documentation if it's already present
 6. Return the complete file with added documentation
 `;
+  },
+
+  security: (targetPath, isDirectory) => {
+    return `
+Perform a comprehensive security analysis of ${isDirectory ? 'the codebase in directory' : 'the file'}: ${targetPath}
+Don't ask any follow-up questions.
+Focus on identifying:
+1. Potential security vulnerabilities (OWASP Top 10 for web applications)
+2. Insecure coding patterns
+3. Input validation issues
+4. Authentication/authorization flaws
+5. Data exposure risks
+6. Injection vulnerabilities (SQL, NoSQL, command, etc.)
+7. Cross-site scripting (XSS) possibilities
+8. Hardcoded secrets or credentials
+9. Insecure dependencies or configurations
+10. Cryptographic issues
+
+For each finding:
+- Describe the vulnerability
+- Rate its severity (Critical, High, Medium, Low)
+- Explain the potential impact
+- Provide a code example showing how to fix it
+- Include references to security best practices
+
+Format the output as markdown with clear sections and code blocks.
+`;
   }
 };
 

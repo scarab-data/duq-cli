@@ -9,6 +9,8 @@ A command-line interface tool for interacting with Amazon Q using different prom
 - Receive refactoring suggestions for your code
 - Generate test cases for your code
 - Generate documentation for your code
+- Run a security analysis on your code
+- Command chaining
 
 ## Prerequisites
 
@@ -109,7 +111,7 @@ This will generate comprehensive test cases for your code and save them to a tes
 Automatically add documentation comments to functions and classes:
 
 ```bash
-duq docstring ./my-project/src/utils.js
+duq docstrings ./my-project/src/utils.js
 ```
 
 This will:
@@ -117,6 +119,47 @@ This will:
 2. Generate appropriate docstrings for all functions, classes, and methods
 3. Insert the docstrings while preserving the existing code
 4. Create a backup of the original file
+
+## Security Analysis
+
+Scan your code for security vulnerabilities:
+
+```bash
+duq security ./my-project
+```
+
+This will:
+1. Analyze your code for potential security issues
+2. Identify vulnerabilities like injection risks, hardcoded secrets, etc.
+3. Provide severity ratings and remediation suggestions
+4. Optionally save a detailed report
+
+You can also analyze a single file:
+
+```bash
+duq security ./my-project/server.js --output security-report.md
+```
+
+## Command Chaining
+
+Run multiple commands in sequence:
+
+```bash
+duq chain ./my-project/src/utils.js "refactor,test,docstrings"
+```
+
+This will:
+1. First refactor the code for better quality
+2. Then generate tests for the refactored code
+3. Finally add docstrings to all functions
+
+You can use the `--continue-on-error` flag to ensure all steps are attempted even if some fail:
+
+```bash
+duq chain ./my-project/src/api.js "refactor,test,docstrings" --continue-on-error
+```
+
+Chain commands work with both files and directories (though some commands like `document` only work with directories, and others like `docstrings` only work with files).
 
 ## Examples
 
@@ -142,7 +185,7 @@ duq test ./api/users.js -o ./tests/api/users.test.js
 
 ## How It Works
 
-Duq CLI works by:
+duq CLI works by:
 
 1. Reading your code files or directories
 2. Formatting the content with specialized prompts
