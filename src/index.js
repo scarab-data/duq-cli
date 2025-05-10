@@ -9,7 +9,7 @@
  */
 
 const { program } = require('commander');
-const { document, explain, refactor, test, docstrings, security } = require('./commands');
+const { document, explain, refactor, test, docstrings, security, chain, revert, listBackups } = require('./commands');
 const chalk = require('chalk');
 const path = require('path');
 
@@ -116,6 +116,23 @@ program
     .option('-c, --continue-on-error', 'Continue execution if a step fails')
     .action((targetPath, steps, options) => {
         chain(targetPath, steps, options);
+    });
+
+program
+    .command('revert')
+    .description('Revert a file to its previous state')
+    .argument('[file]', 'File to revert (omit to revert the most recent change)')
+    .option('-i, --id <backupId>', 'Specific backup ID to restore')
+    .action((file, options) => {
+        revert(file, options);
+    });
+
+program
+    .command('backups')
+    .description('List available backups')
+    .argument('[file]', 'File to list backups for (omit to list all backups)')
+    .action((file) => {
+        listBackups(file);
     });
 
 // Parse command line arguments

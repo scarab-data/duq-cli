@@ -11,6 +11,7 @@ A command-line interface tool for interacting with Amazon Q using different prom
 - Generate documentation for your code
 - Run a security analysis on your code
 - Command chaining
+- Revert unwanted changes made with duq
 
 ## Prerequisites
 
@@ -160,6 +161,50 @@ duq chain ./my-project/src/api.js "refactor,test,docstrings" --continue-on-error
 ```
 
 Chain commands work with both files and directories (though some commands like `document` only work with directories, and others like `docstrings` only work with files).
+
+## Backup and Revert
+
+DUQ CLI automatically creates backups of files before modifying them. You can revert to previous versions:
+
+### Revert the Most Recent Change
+
+```bash
+duq revert
+```
+
+This will undo the most recent file modification made by DUQ CLI.
+
+### Revert a Specific File
+
+```bash
+duq revert ./my-project/src/utils.js
+```
+
+This will restore the file to its state before the most recent DUQ CLI operation.
+
+### List Available Backups
+
+```bash
+duq backups
+```
+
+This will show all available backups across all files.
+
+### List Backups for a Specific File
+
+```bash
+duq backups ./my-project/src/utils.js
+```
+
+This will show the backup history for a specific file.
+
+### Restore a Specific Backup
+
+```bash
+duq revert ./my-project/src/utils.js --id backup-id-from-list
+```
+
+This will restore the file to the state of the specified backup.
 
 ## Examples
 

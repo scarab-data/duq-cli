@@ -119,7 +119,7 @@ function callAmazonQ(prompt) {
   
   console.clear();
   console.log(chalk.cyan('╔═══════════════════════════════════════════════════════════╗'));
-  console.log(chalk.cyan('║                      duq CLI ASSISTANT                    ║'));
+  console.log(chalk.cyan('║                      DUQ CLI ASSISTANT                    ║'));
   console.log(chalk.cyan('╚═══════════════════════════════════════════════════════════╝'));
   
   console.log(chalk[randomColor](duckArt));

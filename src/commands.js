@@ -162,6 +162,12 @@ const docstrings = async (filePath) => {
         // Read the file
         const fileContent = readFile(filePath);
 
+        // Create a backup before modifying
+        const backupId = backupManager.createBackup(filePath, 'docstrings');
+        if (backupId) {
+            console.log(chalk.yellow(`Created backup of original file`));
+        }
+
         // Get the prompt from the template function
         const prompt = templates.docstrings(filePath) + '\n\nFile content:\n' + fileContent;
 
@@ -174,11 +180,6 @@ const docstrings = async (filePath) => {
 
         if (match && match[1]) {
             const documentedCode = match[1].trim();
-
-            // Create a backup of the original file
-            const backupPath = `${filePath}.backup`;
-            fs.copyFileSync(filePath, backupPath);
-            console.log(chalk.yellow(`Original file backed up to: ${backupPath}`));
 
             // Write the documented code to the file
             fs.writeFileSync(filePath, documentedCode, 'utf8');
@@ -349,6 +350,59 @@ const chain = async (targetPath, steps, options = {}) => {
     }
 };
 
+/**
+ * Revert a file to its previous state
+ * @param {string} filePath - Optional path to the file to revert
+ * @param {Object} options - Command options
+ */
+const revert = async (filePath = null, options = {}) => {
+    try {
+        // If a specific backup ID is provided
+        const backupId = options.id || null;
+
+        // Attempt to restore the backup
+        const result = backupManager.restoreBackup(filePath, backupId);
+
+        if (result) {
+            console.log(chalk.green(`✓ Successfully reverted ${result.filePath}`));
+            console.log(chalk.yellow(`Restored from backup created on ${new Date(result.timestamp).toLocaleString()}`));
+            console.log(chalk.yellow(`Original operation: ${result.operation}`));
+        } else {
+            console.error(chalk.red(`Failed to revert${filePath ? ' ' + filePath : ''}`));
+        }
+    } catch (error) {
+        console.error(chalk.red(`Error reverting file: ${error.message}`));
+    }
+};
+
+/**
+ * List available backups
+ * @param {string} filePath - Optional path to list backups for a specific file
+ */
+const listBackups = async (filePath = null) => {
+    try {
+        const backups = backupManager.listBackups(filePath);
+
+        if (backups.length === 0) {
+            console.log(chalk.yellow(`No backups found${filePath ? ' for ' + filePath : ''}`));
+            return;
+        }
+
+        console.log(chalk.cyan(`Available backups${filePath ? ' for ' + filePath : ''}:`));
+
+        backups.forEach((backup, index) => {
+            const date = new Date(backup.timestamp).toLocaleString();
+            if (filePath) {
+                console.log(chalk.white(`${index + 1}. [${date}] Operation: ${backup.operation} (ID: ${backup.id})`));
+            } else {
+                console.log(chalk.white(`${index + 1}. [${date}] File: ${backup.filePath} Operation: ${backup.operation} (ID: ${backup.id})`));
+            }
+        });
+    } catch (error) {
+        console.error(chalk.red(`Error listing backups: ${error.message}`));
+    }
+};
+
 module.exports = {
     document,
     explain,
@@ -356,5 +410,7 @@ module.exports = {
     test,
     docstrings,
     security,
-    chain
+    chain,
+    revert,
+    listBackups
 };
